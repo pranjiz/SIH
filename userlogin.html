@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Login - Janhit Nivaran</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0a4d78, #083c5c);
+      height: 100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+
+    .login-box {
+      background: #f9f9f9;
+      border: 1px solid #ccc;
+      width: 360px;
+      max-width: 95%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      overflow: hidden;
+      text-align: center;
+      border-radius: 6px;
+    }
+
+    .logo {
+      padding: 14px 0 8px;
+      background: #fff;
+    }
+    .logo img { max-width: 110px; height: auto; display:block; margin:0 auto; }
+
+    .login-header {
+      background: #0073b7;
+      color: #fff;
+      padding: 12px;
+      font-weight: bold;
+      font-size: 17px;
+      text-transform: uppercase;
+    }
+
+    .login-body { padding: 18px; text-align: left; }
+
+    .login-body input[type="text"],
+    .login-body input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border: 1px solid #999;
+      border-radius: 3px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    /* captcha layout */
+    .captcha-row { display:flex; gap:8px; align-items:center; margin-bottom:12px; }
+    .captcha-code {
+      background: #000;
+      color: limegreen;
+      font-weight: bold;
+      font-size: 18px;
+      letter-spacing: 2px;
+      padding: 6px 10px;
+      border-radius: 3px;
+      min-width: 88px;
+      text-align:center;
+      user-select: none;
+    }
+    .refresh-btn {
+      background: #0073b7;
+      color: #fff;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .refresh-btn:hover { background:#005f95; }
+    .captcha-input {
+      flex: 1;
+      min-width: 100px;
+      padding:9px;
+      border:1px solid #999;
+      border-radius:3px;
+      font-size:14px;
+      box-sizing:border-box;
+    }
+
+    .options { display:flex; align-items:center; gap:8px; margin-bottom:12px; font-size:13px; color:#333; }
+    .login-body button { width:100%; background:#0073b7; color:#fff; padding:10px; border:none; border-radius:3px; font-weight:bold; text-transform:uppercase; cursor:pointer; }
+    .login-body button:hover { background:#005f95; }
+
+    .links { display:flex; justify-content:space-between; margin-top:12px; gap:8px; align-items:center; }
+    .links a { text-decoration:none; background:#0073b7; color:#fff; padding:7px 12px; border-radius:3px; font-size:13px; display:inline-block; }
+    .links a.ghost { background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.25); }
+
+    .forgot-btn {
+      background: transparent;
+      color: #0073b7;
+      border: 1px solid #0073b7;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .forgot-btn:hover { background:#0073b7; color:#fff; }
+
+    @media (max-width:480px){ .login-box{width:95%} .logo img{max-width:90px} }
+  </style>
+</head>
+<body>
+
+  <div class="login-box" role="main" aria-labelledby="loginTitle">
+    <div class="logo">
+      <img src="images/logo.png" alt="Janhit Nivaran Logo" />
+    </div>
+
+    <div class="login-header" id="loginTitle">User Login</div>
+
+    <div class="login-body">
+      <input type="text" id="userid" placeholder="User ID / Mobile / Email" autocomplete="username" />
+      <input type="password" id="password" placeholder="Password" autocomplete="current-password" />
+
+      <div class="captcha-row" aria-label="captcha row">
+        <div class="captcha-code" id="captcha" aria-hidden="true">000000</div>
+        <button type="button" class="refresh-btn" id="refreshCaptcha" title="Refresh captcha">↻</button>
+        <input type="text" id="captchaInput" class="captcha-input" placeholder="Enter Captcha" inputmode="text" maxlength="6" />
+      </div>
+
+      <div class="options">
+        <label style="font-size:13px;"><input type="checkbox" id="remember"> Remember me</label>
+      </div>
+
+      <button type="button" id="signInBtn">Sign In</button>
+
+      <div class="links" style="margin-top:10px;">
+        <a href="home.html">🏠 Home</a>
+        <a href="register.html" class="ghost">Register</a>
+        <button type="button" class="forgot-btn" id="forgotBtn">Forgot Password</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Generate 6-character alphanumeric captcha
+    function generateCaptcha() {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let c = '';
+      for (let i = 0; i < 6; i++) {
+        c += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      document.getElementById('captcha').innerText = c;
+    }
+
+    // Validate captcha + credentials
+    function validateCaptchaAndLogin() {
+      const entered = document.getElementById('captchaInput').value.trim();
+      const actual = document.getElementById('captcha').innerText.trim();
+      const uid = document.getElementById('userid').value.trim();
+      const pwd = document.getElementById('password').value.trim();
+
+      if (!uid || !pwd) {
+        alert("Please enter User ID and Password.");
+        return;
+      }
+      if (entered.length !== 6) {
+        alert("Captcha must be 6 characters.");
+        return;
+      }
+      if (entered !== actual) {
+        alert("Incorrect captcha. Please try again.");
+        generateCaptcha();
+        document.getElementById('captchaInput').value = '';
+        return;
+      }
+      // ✅ If all good, redirect
+      window.location.href = 'user_dashboard.html';
+    }
+
+    // Restrict captcha input to alphanumeric only, max 6 chars
+    document.getElementById('captchaInput').addEventListener('input', function () {
+      this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 6);
+    });
+
+    // Hook up controls
+    document.getElementById('refreshCaptcha').addEventListener('click', generateCaptcha);
+    document.getElementById('signInBtn').addEventListener('click', validateCaptchaAndLogin);
+    document.getElementById('forgotBtn').addEventListener('click', function(){
+      window.location.href = 'forgot_password.html';
+    });
+
+    // Generate on load
+    window.addEventListener('DOMContentLoaded', generateCaptcha);
+  </script>
+
+</body>
+</html>
